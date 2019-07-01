@@ -5,6 +5,7 @@ import json
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 from dash import Dash
+from flask import Flask
 
 slopechart_dict = json.load(open('data/slopechart.json'))
 heatmap_dict = json.load(open('data/heatmap.json'))
@@ -14,7 +15,6 @@ NEW_MEMBER_STATES = json.load(open('data/new_member_states.json'))
 
 def update_slopechart(_, selected):
     Declarants, Emphasized = NEW_MEMBER_STATES, []
-    print(slopechart_dict[selected][0])
     return {
         'data': [go.Scatter(**line) for line in slopechart_dict[selected]],
         'layout': go.Layout(
@@ -30,7 +30,11 @@ def update_slopechart(_, selected):
     }
 
 
-app = Dash('')
+fl_server = Flask('Trade Similarity Index')
+app = Dash(name='Trade Similarity Index', server=fl_server)
+app.server.secret_key = 'notterriblysecret'
+server = app.server
+
 mathjax = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'
 app.scripts.append_script({ 'external_url' : mathjax })
 
@@ -137,8 +141,8 @@ def update_figure(selected, _):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, threaded=True)
-
+    app.run_server()
+    
 '''
 FIXME:
 - Write down and explain formula.
