@@ -9,6 +9,6 @@
         "certificate_arn": "arn:aws:acm:us-east-1:230156754689:certificate/6b87c952-89d1-453d-9041-67d993f3472d",
         "domain": "respect.microdata.io",
 		"slim_handler": true,
-		"keep_warm": false
-    }
+        "keep_warm": true, 
+        "keep_warm_expression": "rate(4 minutes)"}
 }
