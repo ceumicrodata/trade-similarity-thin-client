@@ -146,7 +146,7 @@ def update_figure(selected, _):
 
 
 if __name__ == '__main__':
-    app.run_server()
+    app.run_server(debug=True)
     
 '''
 FIXME:
