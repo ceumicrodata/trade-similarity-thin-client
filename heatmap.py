@@ -14,6 +14,9 @@ heatmap_dict = json.load(open('data/heatmap.json'))
 YEARS = json.load(open('data/years.json'))
 PARTNERS = json.load(open('data/partners.json'))
 NEW_MEMBER_STATES = json.load(open('data/new_member_states.json'))
+country_codes = json.load(open('data/countries.json'))
+
+
 
 def update_slopechart(_, selected):
     Declarants, Emphasized = NEW_MEMBER_STATES, []
@@ -81,7 +84,7 @@ layout = html.Div([
 
         html.P('$$ \\sum_\{p=1\}^P s_{ijp}\\ln(s_{ijp}/s_{jp}) $$'),
 
-        dcc.Dropdown(id="selected-partner", options=[{"label": i, "value": i} for i in PARTNERS],
+        dcc.Dropdown(id="selected-partner", options=[{"label": country_codes[i], "value": i} for i in PARTNERS],
                    value='RU',
                    style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "60%"}),
 
