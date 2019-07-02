@@ -7,27 +7,15 @@ from dash.dependencies import Input, Output
 from dash import Dash
 from flask import Flask
 
-slopechart_dict = json.load(open('data/slopechart.json'))
-heatmap_dict = json.load(open('data/heatmap.json'))
-YEARS = json.load(open('data/years.json'))
-PARTNERS = json.load(open('data/partners.json'))
-NEW_MEMBER_STATES = json.load(open('data/new_member_states.json'))
 
-def update_slopechart(_, selected):
-    Declarants, Emphasized = NEW_MEMBER_STATES, []
-    return {
-        'data': [go.Scatter(**line) for line in slopechart_dict[selected]],
-        'layout': go.Layout(
-            xaxis={
-                'title': "Year",
-            },
-            yaxis={
-                'title': "Trade Similarity Index",
-            },
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 0},
-            hovermode='closest'
-        )
-    }
+YEARS = json.load(open('data/years_EXP.json'))
+PARTNERS = json.load(open('data/partners_EXP.json'))
+NEW_MEMBER_STATES = json.load(open('data/new_member_states_EXP.json'))
+
+country_codes = json.load(open('data/countries.json'))
+
+slopechart_dict = dict(EXPORT=json.load(open('data/slopechart_EXP.json')), IMPORT=json.load(open('data/slopechart_IMP.json')))
+heatmap_dict = dict(EXPORT=json.load(open('data/heatmap_EXP.json')), IMPORT=json.load(open('data/heatmap_IMP.json')))
 
 
 fl_server = Flask('Trade Similarity Index')
@@ -54,7 +42,11 @@ layout = html.Div([
           style = {'maxWidth': '650px'}
         ),
 
-        dcc.Dropdown(id="selected-year", options=[{"label": i, "value": i} for i in YEARS],
+        dcc.Dropdown(id="selected_flow", options=[{"label": i, "value": i} for i in ["EXPORT","IMPORT"]],
+           value='EXPORT',
+           style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "60%"}),
+
+        dcc.Dropdown(id="selected_year", options=[{"label": i, "value": i} for i in YEARS],
                    value='2017',
                    style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "60%"}),
 
@@ -79,12 +71,11 @@ layout = html.Div([
 
         html.P('$$ \\sum_\{p=1\}^P s_{ijp}\\ln(s_{ijp}/s_{jp}) $$'),
 
-        dcc.Dropdown(id="selected-partner", options=[{"label": i, "value": i} for i in PARTNERS],
+        dcc.Dropdown(id="selected_partner", options=[{"label": country_codes[i], "value": i} for i in PARTNERS],
                    value='RU',
                    style={"display": "block", "margin-left": "auto", "margin-right": "auto", "width": "60%"}),
 
         dcc.Graph(id="slopechart",
-                figure = update_slopechart(None, 'RU'),
                 style={"margin-right": "auto", "margin-left": "auto", "width": "60%"})],
                 className="row"),
 
@@ -124,20 +115,37 @@ app.layout = layout
 
 @app.callback(
     Output("heatmap", "figure"),
-    [Input("selected-year", "value"),
-    Input("selected-partner", "value")])
+    [Input("selected_year", "value"),
+    Input("selected_flow","value")])
 
-#@app.callback(
-#    Output("slopechart", "figure"),
-#    [Input("selected-partner", "value")])
-
-def update_figure(selected, _):
-    trace = go.Heatmap(**heatmap_dict[selected], colorscale='Electric', colorbar={"title": "KDL"}, showscale=True, zauto=False, zmin=0, zmax=1)
+def update_figure(selected_year, selected_flow):
+    print(selected_flow)
+    trace = go.Heatmap(heatmap_dict[selected_flow][selected_year], colorscale='Electric', colorbar={"title": "KDL"}, showscale=True, zauto=False, zmin=0, zmax=1)
     return {"data": [trace],
-            "layout": go.Layout(width=800, height=750, title=f"{selected.title()}", 
+            "layout": go.Layout(width=800, height=750, title=f"{selected_year.title()}", 
                                 xaxis={"title": "Partner"},
                                 yaxis={"title": "Reporter"} )}
 
+@app.callback(
+    Output("slopechart", "figure"),
+    [Input("selected_partner", "value"),
+    Input("selected_flow","value")])
+
+def update_slopechart(selected_partner, selected_flow):
+    Declarants, Emphasized = NEW_MEMBER_STATES, []
+    return {
+        'data': [go.Scatter(**line) for line in slopechart_dict[selected_flow][selected_partner]],
+        'layout': go.Layout(
+            xaxis={
+                'title': "Year",
+            },
+            yaxis={
+                'title': "Trade Similarity Index",
+            },
+            margin={'l': 40, 'b': 40, 't': 10, 'r': 0},
+            hovermode='closest'
+        )
+    }
 
 
 if __name__ == '__main__':
