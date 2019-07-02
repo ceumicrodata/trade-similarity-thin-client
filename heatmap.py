@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import os
 import dash_core_components as dcc
 import dash_html_components as html
@@ -132,9 +134,9 @@ app.layout = layout
 #    [Input("selected-partner", "value")])
 
 def update_figure(selected, _):
-    trace = go.Heatmap(**heatmap_dict[selected], colorscale='Electric', colorbar={"title": "KDL"}, showscale=True, zauto=False, zmin=0, zmax=1)
+    trace = go.Heatmap(heatmap_dict[selected], colorscale='Electric', colorbar={"title": "KDL"}, showscale=True, zauto=False, zmin=0, zmax=1)
     return {"data": [trace],
-            "layout": go.Layout(width=800, height=750, title=f"{selected.title()}", 
+            "layout": go.Layout(width=800, height=750,  
                                 xaxis={"title": "Partner"},
                                 yaxis={"title": "Reporter"} )}
 
